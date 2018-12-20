@@ -1,0 +1,89 @@
+version: 2
+jobs:
+  build-master:
+    docker:
+      - image: docker:stable
+        environment:
+          DOCKER_DRIVER: overlay2
+          FULL_VERSION: 'master'
+          CI_REGISTRY_IMAGE: 'containerinfra/sealed-secrets-controller'
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: |
+          docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+
+          docker build --build-arg SEALED_SECRETS_VERSION=${FULL_VERSION} -t $CI_REGISTRY_IMAGE:$FULL_VERSION --label org.opencontainers.image.revision=$CIRCLE_SHA1 .
+          docker tag $CI_REGISTRY_IMAGE:$FULL_VERSION $CI_REGISTRY_IMAGE:latest
+          docker push $CI_REGISTRY_IMAGE:$FULL_VERSION
+          docker push $CI_REGISTRY_IMAGE:latest
+
+  build-v4.7.0:
+    docker:
+      - image: docker:stable
+        environment:
+          DOCKER_DRIVER: overlay2
+          FULL_VERSION: 'v0.7.0'
+          CI_REGISTRY_IMAGE: 'containerinfra/sealed-secrets-controller'
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: |
+          docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+
+          docker build --build-arg SEALED_SECRETS_VERSION=${FULL_VERSION} -t $CI_REGISTRY_IMAGE:$FULL_VERSION --label org.opencontainers.image.revision=$CIRCLE_SHA1 .
+          docker push $CI_REGISTRY_IMAGE:$FULL_VERSION
+
+  build-v4.6.0:
+    docker:
+      - image: docker:stable
+        environment:
+          DOCKER_DRIVER: overlay2
+          FULL_VERSION: 'v0.6.0'
+          CI_REGISTRY_IMAGE: 'containerinfra/sealed-secrets-controller'
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: |
+          docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+
+          docker build --build-arg SEALED_SECRETS_VERSION=${FULL_VERSION} -t $CI_REGISTRY_IMAGE:$FULL_VERSION --label org.opencontainers.image.revision=$CIRCLE_SHA1 .
+          docker push $CI_REGISTRY_IMAGE:$FULL_VERSION
+
+  build-pr:
+    docker:
+      - image: docker:stable
+        environment:
+          DOCKER_DRIVER: overlay2
+          CI_REGISTRY_IMAGE: 'containerinfra/sealed-secrets-controller'
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: |
+          docker build -t $CI_REGISTRY_IMAGE:latest .
+
+workflows:
+  version: 2
+  build-job:
+    jobs:
+      - build-master:
+          filters:
+            branches:
+              only: master
+      - build-v0.7.0:
+          filters:
+            branches:
+              only: master
+      - build-v0.6.0:
+          filters:
+            branches:
+              only: master
+
+      - build-pr:
+          filters:
+            branches:
+              ignore: master
