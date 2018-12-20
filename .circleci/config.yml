@@ -19,7 +19,7 @@ jobs:
           docker push $CI_REGISTRY_IMAGE:$FULL_VERSION
           docker push $CI_REGISTRY_IMAGE:latest
 
-  build-v4.7.0:
+  build-v0.7.0:
     docker:
       - image: docker:stable
         environment:
@@ -36,7 +36,7 @@ jobs:
           docker build --build-arg SEALED_SECRETS_VERSION=${FULL_VERSION} -t $CI_REGISTRY_IMAGE:$FULL_VERSION --label org.opencontainers.image.revision=$CIRCLE_SHA1 .
           docker push $CI_REGISTRY_IMAGE:$FULL_VERSION
 
-  build-v4.6.0:
+  build-v0.6.0:
     docker:
       - image: docker:stable
         environment:
