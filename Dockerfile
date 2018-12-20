@@ -18,5 +18,5 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o controller ./cmd/controlle
 
 
 FROM scratch
-COPY --from=builder /go/src/github.com/bitnami-labs/sealed-secrets/controller /usr/local/bin/sealed-secrets-controller
-ENTRYPOINT [ "/usr/local/bin/sealed-secrets-controller" ]
+COPY --from=builder /go/src/github.com/bitnami-labs/sealed-secrets/controller /usr/local/bin/controller
+ENTRYPOINT [ "/usr/local/bin/controller" ]
